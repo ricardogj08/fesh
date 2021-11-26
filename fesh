@@ -69,7 +69,7 @@ entry() { cat << EOF
   <title>${post_title}</title>
   <updated>${post_date}</updated>
   <author>
-  <name>${fesh_author}</name>
+    <name>${fesh_author}</name>
   </author>
   <link rel="alternate" href="${post_url}" type="text/gemini"/>
 </entry>
