@@ -1,0 +1,102 @@
+#!/bin/sh
+#
+# fesh - An Atom feed generator for Gemini capsules written in POSIX sh.
+#
+# Copyright (C) 2021 - Ricardo García Jiménez <ricardogj08@riseup.net>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this software except in compliance with the License.
+# You may obtain a copy of the License at:
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Muestra mensajes de errores.
+errors() {
+  printf '%s.\n' "$1" >&2
+  exit 1
+}
+
+# Muestra un mensaje de ayuda.
+shelp() { printf '%s' "\
+fesh 2.0 - An Atom feed generator for Gemini capsules written in POSIX sh.
+
+Synopsis:
+  fesh -d <DOMAIN> -t <STRING> [OPTIONS]
+
+Options:
+  -d <DOMAIN> - Capsule domain name.
+  -h          - Show all help options.
+  -o <FILE>   - RSS feed file output [default: feed.xml].
+  -r <PATH>   - Capsule root directory [default: \$PWD].
+  -t <STRING> - Capsule title.
+
+Example:
+  fesh -d myblog.com -t 'My blog'
+"
+exit 0
+}
+
+header() { cat << EOF
+
+EOF
+}
+
+items() { cat << EOF
+
+EOF
+}
+
+footer() { cat << EOF
+
+EOF
+}
+
+
+main() {
+  while getopts :d:ho:r:t: option; do
+    case $option in
+       d) fesh_domain="$OPTARG";;
+       h) shelp;;
+       o) fesh_output="$OPTARG";;
+       r) fesh_root="$OPTARG";;
+       t) fesh_title="$$OPTARG";;
+      \?) errors "Ivalid option -$OPTARG";;
+       :) errors "Option -$OPTARG requires an argument";;
+    esac
+  done
+
+  # Decrementa el puntero del argumento para que apunte al siguiente argumento.
+  shift $((OPTIND - 1))
+
+  # Opciones obligatorias.
+  [ -z "$fesh_domain" ] || [ -z "$fesh_title" ] && shelp;
+
+  : > "${fesh_output:=$PWD/atom.xml}" || errors "Could not create Atom feed file in '$fesh_output'"
+
+  # Obtiene todos los archivos *.gmi o *.gemini ordenados por fecha de modificación.
+  posts=$(cd "${fesh_root:-$PWD}" && find . -type f \( -name '*.gmi' -o -name '*.gemini' \) -exec ls -t {} +)
+
+  # Configuración por defecto.
+
+  fesh_domain=gemini://${fesh_domain}
+
+  # Nombre del archivo del feed RSS.
+  feed_file=${fesh_output%${fesh_output##*[!/]}}
+  feed_file=${feed_file##*/}
+
+  feed_url="$fesh_domain/$feed_file"
+
+  date_format=+%Y-%m-%dT%H:%M:%SZ
+
+  header
+  footer
+}
+
+main "$@"
