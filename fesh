@@ -49,15 +49,15 @@ exit 0
 # Genera el encabezado del feed de Atom.
 header() { cat << EOF
 <?xml version="1.0" encoding="UTF-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="${fesh_lang:-es}">
 <id>${feed_url}</id>
 <title>${fesh_title}</title>
 <updated>$(LC_ALL=C date "$date_format")</updated>
 <author>
   <name>${fesh_author}</name>
 </author>
-<link rel="self" href="${feed_url}"/>
-<link rel="alternate" href="${fesh_domain}"/>
+<link rel="self" href="${feed_url}" type="application/atom+xml"/>
+<link rel="alternate" href="${fesh_domain}" type="text/gemini"/>
 <generator uri="https://github.com/ricardogj08/fesh" version="2.0">fesh</generator>
 EOF
 }
@@ -71,7 +71,7 @@ entry() { cat << EOF
   <author>
   <name>${fesh_author}</name>
   </author>
-  <link rel="alternate" href="${post_url}"/>
+  <link rel="alternate" href="${post_url}" type="text/gemini"/>
 </entry>
 EOF
 }
