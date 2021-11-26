@@ -31,9 +31,12 @@ Synopsis:
   fesh -d <DOMAIN> -t <STRING> [OPTIONS]
 
 Options:
+  -a <NAME>   - Author name [default: capsule title].
   -d <DOMAIN> - Capsule domain name.
   -h          - Show all help options.
-  -o <FILE>   - RSS feed file output [default: feed.xml].
+  -l <LANG>   - Capsule content lenguage [default: es].
+  -n <NUMBER> - Number of entries in Atom feed [default: 10].
+  -o <FILE>   - Atom feed file output [default: atom.xml].
   -r <PATH>   - Capsule root directory [default: \$PWD].
   -t <STRING> - Capsule title.
 
@@ -43,30 +46,93 @@ Example:
 exit 0
 }
 
+# Genera el encabezado del feed de Atom.
 header() { cat << EOF
-
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+<id>${feed_url}</id>
+<title>${fesh_title}</title>
+<updated>$(LC_ALL=C date "$date_format")</updated>
+<author>
+  <name>${fesh_author}</name>
+</author>
+<link rel="self" href="${feed_url}"/>
+<link rel="alternate" href="${fesh_domain}"/>
+<generator uri="https://github.com/ricardogj08/fesh" version="2.0">fesh</generator>
 EOF
 }
 
-items() { cat << EOF
-
+# Genera una entrada del feed de Atom.
+entry() { cat << EOF
+<entry>
+  <id>${post_url}</id>
+  <title>${post_title}</title>
+  <updated>${post_date}</updated>
+  <author>
+  <name>${fesh_author}</name>
+  </author>
+  <link rel="alternate" href="${post_url}"/>
+</entry>
 EOF
 }
 
-footer() { cat << EOF
+# Elimina espacios sobrantes de un string.
+# shellcheck disable=SC2048,SC2086
+trim_all() {
+  set -f
 
-EOF
+  set -- $*
+
+  printf '%s' "$*"
+
+  set +f
 }
 
+# Construye un feed de Atom desde un directorio raíz.
+render_feed() {
+  header
+
+  itr=0
+
+  # Genera las entradas del feed.
+  for post in $posts; do
+    filename=$(basename "$post")
+
+    # Ignora 'index.gmi' e 'index.gemini'.
+    [ "$filename" = 'index.gmi' ] || [ "$filename" = 'index.gemini' ] && continue
+
+    [ "$itr" -eq "$fesh_number" ] && break
+
+    # URL Gemini de la publicación.
+    post_url=${fesh_domain}${post#./}
+
+    # Obtiene el primer título principal de la publicación.
+    post_title=$(grep -e '^#[[:space:]]' "$post" | head -n 1)
+    post_title=$(trim_all "${post_title#\#[[:space:]]}")
+
+    # Fecha de la publicación.
+    # Si 'date -r' falla, utiliza la fecha actual.
+    post_date=$(LC_ALL=C date -r "$post" "$date_format" 2>/dev/null ||
+                LC_ALL=C date "$date_format")
+
+    entry
+
+    itr=$((itr + 1))
+  done
+
+  printf '</feed>\n'
+}
 
 main() {
-  while getopts :d:ho:r:t: option; do
+  while getopts :a:d:hn:o:r:t: option; do
     case $option in
-       d) fesh_domain="$OPTARG";;
+       a) fesh_author="$OPTARG";;
+       d) fesh_domain=gemini://${OPTARG}/;;
        h) shelp;;
+       n) fesh_number="$OPTARG";;
        o) fesh_output="$OPTARG";;
        r) fesh_root="$OPTARG";;
-       t) fesh_title="$$OPTARG";;
+       t) fesh_title="$OPTARG";;
       \?) errors "Ivalid option -$OPTARG";;
        :) errors "Option -$OPTARG requires an argument";;
     esac
@@ -78,25 +144,26 @@ main() {
   # Opciones obligatorias.
   [ -z "$fesh_domain" ] || [ -z "$fesh_title" ] && shelp;
 
-  : > "${fesh_output:=$PWD/atom.xml}" || errors "Could not create Atom feed file in '$fesh_output'"
+  : > "${fesh_output:=$PWD/atom.xml}" ||
+    errors "Could not create Atom feed file in '$fesh_output'"
+
+  cd "${fesh_root:-$PWD}" 2>/dev/null ||
+    errors "Could not access '$fesh_root' directory"
 
   # Obtiene todos los archivos *.gmi o *.gemini ordenados por fecha de modificación.
-  posts=$(cd "${fesh_root:-$PWD}" && find . -type f \( -name '*.gmi' -o -name '*.gemini' \) -exec ls -t {} +)
+  posts=$(find . -type f \( -name '*.gmi' -o -name '*.gemini' \) -exec ls -t {} +)
 
   # Configuración por defecto.
+  : "${fesh_author:=$fesh_title}"
+  : "${fesh_number:=10}"
 
-  fesh_domain=gemini://${fesh_domain}
+  feed_file=$(basename "$fesh_output")
 
-  # Nombre del archivo del feed RSS.
-  feed_file=${fesh_output%${fesh_output##*[!/]}}
-  feed_file=${feed_file##*/}
-
-  feed_url="$fesh_domain/$feed_file"
+  feed_url=${fesh_domain}${feed_file}
 
   date_format=+%Y-%m-%dT%H:%M:%SZ
 
-  header
-  footer
+  render_feed > "$fesh_output"
 }
 
 main "$@"

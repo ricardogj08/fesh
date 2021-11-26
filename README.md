@@ -12,7 +12,6 @@ Un generador de feeds de Atom para cápsulas [Gemini](https://gemini.circumlunar
 
 * [Estructura de un feed de Atom por la W3C.](https://validator.w3.org/feed/docs/atom.html)
 
-
 ## Licencia
 
 ```text
@@ -35,6 +34,7 @@ y limitaciones establecidos en la Licencia.
 
 ## Registro de cambios
 
-* versión 2.0
+* Versión 2.0
 	* El parámetro `-r` es opcional (por defecto utiliza la ruta de trabajo actual).
-	* El parámetro `-i` es reemplazado por `-d` con el dominio de la cápsula sin `gemini://`
+	* El parámetro `-i` es reemplazado por `-d` para definir el dominio de la cápsula, ahora sin `gemini://`
+	* Eliminados los parámetros `-c`, `-e`, y `-s`.
