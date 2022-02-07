@@ -84,7 +84,7 @@ Cuando modifiques o agregues nuevo contenido a tu cápsula, repite el mismo proc
 ```text
 fesh - Un generador de feeds de Atom para cápsulas Gemini escrito en POSIX sh.
 
-Copyright (C) 2021 - Ricardo García Jiménez <ricardogj08@riseup.net>
+Copyright (C) 2021-2022 - Ricardo García Jiménez <ricardogj08@riseup.net>
 
 Autorizado en virtud de la Licencia de Apache, Versión 2.0 (la "Licencia");
 se prohíbe utilizar este software excepto en cumplimiento de la Licencia.
