@@ -99,6 +99,8 @@ Véase la Licencia para consultar el texto específico relativo a los permisos
 y limitaciones establecidos en la Licencia.
 ```
 
+> [Licencia de Apache Versión 2.0 en español.](https://wikis.fdi.ucm.es/ELP/Licencia_Apache)
+
 ## Registro de cambios
 
 * Versión 2.0
