@@ -17,67 +17,60 @@
 # limitations under the License.
 #
 
+#
 # Muestra mensajes de errores.
+#
 errors() {
   printf '%s.\n' "$1" >&2
   exit 1
 }
 
+#
 # Muestra un mensaje de ayuda.
+#
 shelp() { printf '%s' "\
-fesh 2.0 - An Atom feed generator for Gemini capsules written in POSIX sh.
+fesh 2.1 - An Atom feed generator for Gemini capsules written in POSIX sh.
 
 Synopsis:
-  fesh -d <DOMAIN> -t <STRING> [OPTIONS]
+  fesh [OPTIONS]
 
 Options:
-  -a <NAME>   - Author name [default: capsule title].
-  -d <DOMAIN> - Capsule domain name.
-  -h          - Show all help options.
+  -a <NAME>   - Author name [default: capsule].
+  -c <STRING> - Capsule name [default: fesh].
+  -d <DOMAIN> - Capsule domain name [default: localhost:1965].
   -l <LANG>   - Capsule content lenguage [default: es].
-  -n <NUMBER> - Number of entries in Atom feed [default: 10].
-  -o <FILE>   - Atom feed file output [default: atom.xml].
-  -r <PATH>   - Capsule root directory [default: \$PWD].
-  -t <STRING> - Capsule title.
+  -n <NUMBER> - Number of entries [default: 10].
+  -o <PATH>   - Output directory [default: .].
+  -r <PATH>   - Capsule root directory [default: .].
 
 Example:
-  fesh -d myblog.com -t 'My blog'
+  fesh -d myblog.com -c 'My blog'
 "
 exit 0
 }
 
+#
 # Genera el encabezado del feed de Atom.
+#
 header() { cat << EOF
 <?xml version="1.0" encoding="UTF-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="${fesh_lang:-es}">
-<id>${feed_url}</id>
-<title>${fesh_title}</title>
-<updated>$(LC_ALL=C date "$date_format")</updated>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="${FESH_LANG:-es}">
+<id>${FESH_DOMAIN}/atom.xml</id>
+<title>${FESH_CAPSULE}</title>
+<updated>$(LC_ALL=C date "$FDATE")</updated>
 <author>
-  <name>${fesh_author}</name>
+  <name>${FESH_AUTHOR}</name>
 </author>
-<link rel="self" href="${feed_url}" type="application/atom+xml"/>
-<link rel="alternate" href="${fesh_domain}" type="text/gemini"/>
-<generator uri="https://github.com/ricardogj08/fesh" version="2.0">fesh</generator>
+<link rel="self" href="${FESH_DOMAIN}/atom.xml" type="application/atom+xml"/>
+<link rel="alternate" href="${FESH_DOMAIN}" type="text/gemini"/>
+<generator uri="https://github.com/ricardogj08/fesh" version="2.1">fesh</generator>
 EOF
 }
 
-# Genera una entrada del feed de Atom.
-entry() { cat << EOF
-<entry>
-  <id>${post_url}</id>
-  <title>${post_title}</title>
-  <updated>${post_date}</updated>
-  <author>
-    <name>${fesh_author}</name>
-  </author>
-  <link rel="alternate" href="${post_url}" type="text/gemini"/>
-</entry>
-EOF
-}
-
+#
 # Elimina espacios sobrantes de un string.
 # shellcheck disable=SC2048,SC2086
+#
 trim_all() {
   set -f
 
@@ -88,82 +81,105 @@ trim_all() {
   set +f
 }
 
-# Construye un feed de Atom desde un directorio raíz.
-render_feed() {
+#
+# Genera una entrada para el feed de Atom.
+#
+entry() { cat << EOF
+<entry>
+  <id>${URL}</id>
+  <title>${TITLE}</title>
+  <updated>${DATE}</updated>
+  <author>
+    <name>${FESH_AUTHOR}</name>
+  </author>
+  <link rel="alternate" href="${URL}" type="text/gemini"/>
+</entry>
+EOF
+}
+
+#
+# Contruye un feed de atom.
+#
+render() {
+  FDATE=+%Y-%m-%dT%H:%M:%SZ
+
   header
 
-  itr=0
+  i=0
 
-  # Genera las entradas del feed.
-  for post in $posts; do
-    filename=$(basename "$post")
+  #
+  # Lista todos los archivos *.gmi o *.gemini
+  # ordenados por fecha de modificación.
+  #
+  find . -type f \( -name \*.gmi -o -name \*.gemini \) \
+    -a ! \( -name index.gmi -o -name index.gemini \) \
+    -exec ls -t {} + 2>/dev/null |
 
-    # Ignora 'index.gmi' e 'index.gemini'.
-    [ "$filename" = 'index.gmi' ] || [ "$filename" = 'index.gemini' ] && continue
+  while read -r file; do
+    #
+    # URL Gemini del archivo.
+    #
+    URL="$FESH_DOMAIN/${file#./}"
 
-    [ "$itr" -eq "$fesh_number" ] && break
+    #
+    # Título principal del archivo.
+    #
+    TITLE=$(grep -se '^#[[:space:]]' "$file" | head -n 1)
+    TITLE=${TITLE#\#[[:space:]]}
+    TITLE=$(trim_all "$TITLE")
 
-    # URL Gemini de la publicación.
-    post_url=${fesh_domain}${post#./}
-
-    # Obtiene el primer título principal de la publicación.
-    post_title=$(grep -e '^#[[:space:]]' "$post" | head -n 1)
-    post_title=$(trim_all "${post_title#\#[[:space:]]}")
-
-    # Fecha de la publicación.
-    # Si 'date -r' falla, utiliza la fecha actual.
-    post_date=$(LC_ALL=C date -r "$post" "$date_format" 2>/dev/null ||
-                LC_ALL=C date "$date_format")
+    #
+    # Fecha de modificación.
+    #
+    DATE=$(LC_ALL=C date -r "$file" "$FDATE" 2>/dev/null ||
+      LC_ALL=C date "$FDATE")
 
     entry
 
-    itr=$((itr + 1))
+    i=$((i + 1))
+
+    [ "$i" -eq "$FESH_NUMBER" ] && break
   done
 
   printf '</feed>\n'
 }
 
 main() {
-  while getopts :a:d:hn:o:r:t: option; do
-    case $option in
-       a) fesh_author="$OPTARG";;
-       d) fesh_domain=gemini://${OPTARG}/;;
-       h) shelp;;
-       n) fesh_number="$OPTARG";;
-       o) fesh_output="$OPTARG";;
-       r) fesh_root="$OPTARG";;
-       t) fesh_title="$OPTARG";;
-      \?) errors "Ivalid option -$OPTARG";;
-       :) errors "Option -$OPTARG requires an argument";;
+  while getopts :a:c:d:l:n:o:r: opt; do
+    case $opt in
+      a) FESH_AUTHOR="$OPTARG";;
+      c) FESH_CAPSULE="$OPTARG";;
+      d) FESH_DOMAIN=gemini://${OPTARG}:1965;;
+      l) FESH_LANG="$OPTARG";;
+      n) FESH_NUMBER="$OPTARG";;
+      o) FESH_OUTPUT="$OPTARG";;
+      r) FESH_ROOT="$OPTARG";;
+      \?) shelp;;
+      :) errors "Option -$OPTARG requires an argument"
     esac
   done
-
-  # Decrementa el puntero del argumento para que apunte al siguiente argumento.
+  #
+  # Decrementa el puntero del argumento $n
+  # para que apunte al siguente argumento.
+  #
   shift $((OPTIND - 1))
 
-  # Opciones obligatorias.
-  [ -z "$fesh_domain" ] || [ -z "$fesh_title" ] && shelp;
-
-  : > "${fesh_output:=$PWD/atom.xml}" ||
-    errors "Could not create Atom feed file in '$fesh_output'"
-
-  cd "${fesh_root:-$PWD}" 2>/dev/null ||
-    errors "Could not access '$fesh_root' directory"
-
-  # Obtiene todos los archivos *.gmi o *.gemini ordenados por fecha de modificación.
-  posts=$(find . -type f \( -name '*.gmi' -o -name '*.gemini' \) -exec ls -t {} +)
-
+  #
   # Configuración por defecto.
-  : "${fesh_author:=$fesh_title}"
-  : "${fesh_number:=10}"
+  #
+  : "${FESH_CAPSULE=fesh}"
+  : "${FESH_AUTHOR:=$FESH_CAPSULE}"
+  : "${FESH_DOMAIN:=gemini://localhost:1965}"
+  : "${FESH_NUMBER:=15}"
+  : "${FESH_OUTPUT:=.}"
 
-  feed_file=$(basename "$fesh_output")
+  :> "$FESH_OUTPUT/atom.xml" ||
+    errors "Couldn't create Atom feed file"
 
-  feed_url=${fesh_domain}${feed_file}
+  cd "${FESH_ROOT:-.}" ||
+    errors "Couldn't access capsule root directory"
 
-  date_format=+%Y-%m-%dT%H:%M:%SZ
-
-  render_feed > "$fesh_output"
+  render > "$FESH_OUTPUT/atom.xml"
 }
 
 main "$@"

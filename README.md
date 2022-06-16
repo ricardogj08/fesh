@@ -79,22 +79,20 @@ Ahora puedes difundir las nuevas publicaciones de tu cápsula compartiendo la UR
 
 ## Licencia
 
-```text
-fesh - Un generador de feeds de Atom para cápsulas Gemini escrito en POSIX sh.
+    fesh - Un generador de feeds de Atom para cápsulas Gemini escrito en POSIX sh.
 
-Copyright (C) 2021-2022 - Ricardo García Jiménez <ricardogj08@riseup.net>
+    Copyright (C) 2021-2022 - Ricardo García Jiménez <ricardogj08@riseup.net>
 
-Autorizado en virtud de la Licencia de Apache, Versión 2.0 (la "Licencia");
-se prohíbe utilizar este software excepto en cumplimiento de la Licencia.
-Podrá obtener una copia de la Licencia en:
+    Autorizado en virtud de la Licencia de Apache, Versión 2.0 (la "Licencia");
+    se prohíbe utilizar este software excepto en cumplimiento de la Licencia.
+    Podrá obtener una copia de la Licencia en:
 
-    http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-A menos que lo exijan las leyes pertinentes o se haya establecido por escrito,
-el software distribuido en virtud de la Licencia se distribuye “TAL CUAL”,
-SIN GARANTÍAS NI CONDICIONES DE NINGÚN TIPO, ya sean expresas o implícitas.
-Véase la Licencia para consultar el texto específico relativo a los permisos
-y limitaciones establecidos en la Licencia.
-```
+    A menos que lo exijan las leyes pertinentes o se haya establecido por escrito,
+    el software distribuido en virtud de la Licencia se distribuye “TAL CUAL”,
+    SIN GARANTÍAS NI CONDICIONES DE NINGÚN TIPO, ya sean expresas o implícitas.
+    Véase la Licencia para consultar el texto específico relativo a los permisos
+    y limitaciones establecidos en la Licencia.
 
 > [Licencia de Apache Versión 2.0 en español.](https://wikis.fdi.ucm.es/ELP/Licencia_Apache)
