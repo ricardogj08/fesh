@@ -37,8 +37,8 @@ Synopsis:
 Options:
   -a <NAME>   - Author name [default: capsule].
   -c <STRING> - Capsule name [default: fesh].
-  -d <DOMAIN> - Capsule domain name [default: localhost:1965].
-  -l <LANG>   - Capsule content lenguage [default: es].
+  -d <DOMAIN> - Capsule domain name [default: localhost].
+  -l <LANG>   - Capsule content language [default: es].
   -n <NUMBER> - Number of entries [default: 10].
   -o <PATH>   - Output directory [default: .].
   -r <PATH>   - Capsule root directory [default: .].

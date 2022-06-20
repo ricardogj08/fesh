@@ -8,6 +8,12 @@ Un generador de feeds de Atom para cápsulas [Gemini](https://gemini.circumlunar
 * GNU Coreutils, BusyBox, Toybox, sbase u otro paquete de herramientas de UNIX.
 * Opcional `date -r` (no es POSIX), de lo contrario utiliza la fecha actual.
 
+## Instalación
+
+    git clone https://github.com/ricardogj08/fesh.git
+    cd fesh
+    sudo cp fesh /usr/local/bin
+
 ## Uso
 
 ### Consideraciones
@@ -40,7 +46,7 @@ Todos los archivos de un sitio web en Gemini (cápsula), deben contener al menos
     ...
     ...
 
-`fesh` escanea recursivamente el directorio raíz de una cápsula, y obtiene las entradas para el feed de Atom basado en la fecha de modificación más reciente (cuando es posible) de todos los archivos con extensión `*.gmi` y `*.gemini`. Ignora archivos nombrados como `index.gmi` o `index.gemini` para las entradas.
+`fesh` escanea recursivamente el directorio raíz de una cápsula y obtiene las entradas para el feed de Atom basado en la fecha de modificación más reciente (cuando es posible) de todos los archivos con extensión `*.gmi` y `*.gemini`. Ignora archivos nombrados como `index.gmi` o `index.gemini` para las entradas.
 
 > El feed de Atom generado se debe ubicar en la raíz de la carpeta de tu cápsula en el servidor Gemini.
 
@@ -48,7 +54,7 @@ Todos los archivos de un sitio web en Gemini (cápsula), deben contener al menos
 
 Genera un feed de Atom utilizando el directorio raíz de tu cápsula:
 
-    fesh -d miblog.com -t 'Mi blog' -r ~/miblog
+    fesh -d miblog.com -c 'Mi blog' -r ~/miblog
 
 Por defecto, `fesh` genera un archivo `atom.xml` en el directorio de trabajo actual. Copia el archivo `atom.xml` en la raíz de la carpeta de tu cápsula en el servidor Gemini:
 
@@ -56,7 +62,7 @@ Por defecto, `fesh` genera un archivo `atom.xml` en el directorio de trabajo act
 
 O en un solo paso:
 
-    fesh -d miblog.com -t 'Mi blog' -r ~/miblog -o /var/gemini/miblog
+    fesh -d miblog.com -c 'Mi blog' -r ~/miblog -o /var/gemini/miblog
 
 Ahora puedes difundir las nuevas publicaciones de tu cápsula compartiendo la URL Gemini `gemini://miblog.com/atom.xml`. Una buena idea es colocar un enlace del feed en tu cápsula o agregarlo en un servicio web Gemini agregador de feeds con soporte de Atom:
 
