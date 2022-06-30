@@ -76,12 +76,12 @@ Ahora puedes difundir las nuevas publicaciones de tu cápsula compartiendo la UR
 ## Referencias
 
 * [Especificación POSIX por el IEEE.](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/contents.html)
-* [Colección de alternativas POSIX `sh` a procesos externos por Dylan Araps.](https://github.com/dylanaraps/pure-sh-bible)
+* [Colección de alternativas POSIX sh a procesos externos por Dylan Araps.](https://github.com/dylanaraps/pure-sh-bible)
 * [Tutoriales sobre UNIX por Bruce Barnett.](https://www.grymoire.com/Unix/index.html)
-* [Estructura de un feed de Atom por la W3C.](https://validator.w3.org/feed/docs/atom.html)
-* [Estructura de un feed RSS en `bash`.](https://github.com/cfenollosa/bashblog)
-* [Gemfeed, un generador de feeds de Atom para Gemini escrito en `Python 3`.](https://tildegit.org/solderpunk/gemfeed)
-* [GemAtom, un generador de feeds de Atom para Gemini escrito en `Rust`.](https://git.sr.ht/~dr_tutut/gematom)
+* [Introducción a los feeds de Atom por la W3C.](https://validator.w3.org/feed/docs/atom.html)
+* [bashblog - Un script en Bash para crear blogs.](https://github.com/cfenollosa/bashblog)
+* [Gemfeed - Un generador de feeds de Atom para Gemini escrito en Python 3.](https://tildegit.org/solderpunk/gemfeed)
+* [GemAtom - Un generador de feeds de Atom para Gemini escrito en Rust.](https://git.sr.ht/~dr_tutut/gematom)
 
 ## Licencia
 

@@ -29,7 +29,7 @@ errors() {
 # Muestra un mensaje de ayuda.
 #
 shelp() { printf '%s' "\
-fesh 2.1 - An Atom feed generator for Gemini capsules written in POSIX sh.
+fesh 2.2 - An Atom feed generator for Gemini capsules written in POSIX sh.
 
 Synopsis:
   fesh [OPTIONS]
@@ -39,7 +39,7 @@ Options:
   -c <STRING> - Capsule name [default: fesh].
   -d <DOMAIN> - Capsule domain name [default: localhost].
   -l <LANG>   - Capsule content language [default: es].
-  -n <NUMBER> - Number of entries [default: 10].
+  -n <NUMBER> - Number of entries [default: 15].
   -o <PATH>   - Output directory [default: .].
   -r <PATH>   - Capsule root directory [default: .].
 
@@ -53,7 +53,7 @@ exit 0
 # Genera el encabezado del feed de Atom.
 #
 header() { cat << EOF
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="${FESH_LANG:-es}">
 <id>${FESH_DOMAIN}/atom.xml</id>
 <title>${FESH_CAPSULE}</title>
@@ -63,7 +63,7 @@ header() { cat << EOF
 </author>
 <link rel="self" href="${FESH_DOMAIN}/atom.xml" type="application/atom+xml"/>
 <link rel="alternate" href="${FESH_DOMAIN}" type="text/gemini"/>
-<generator uri="https://github.com/ricardogj08/fesh" version="2.1">fesh</generator>
+<generator uri="https://github.com/ricardogj08/fesh" version="2.2">fesh</generator>
 EOF
 }
 
@@ -115,7 +115,7 @@ render() {
     -a ! \( -name index.gmi -o -name index.gemini \) \
     -exec ls -t {} + 2>/dev/null |
 
-  while read -r file; do
+  while read file; do
     #
     # URL Gemini del archivo.
     #
