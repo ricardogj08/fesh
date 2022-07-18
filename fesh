@@ -115,7 +115,7 @@ render() {
     -a ! \( -name index.gmi -o -name index.gemini \) \
     -exec ls -t {} + 2>/dev/null |
 
-  while read file; do
+  while read -r file; do
     #
     # URL Gemini del archivo.
     #
